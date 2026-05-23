@@ -99,26 +99,61 @@ Create one file per threat under `threat-model/threats/` using [THREAT-ENTRY-FOR
 Process threats **one at a time**, **critical → informational**. For each threat:
 
 1. Summarize: asset, boundary, STRIDE category, scenario, severity rationale.
-2. State your **recommended response** (avoid / mitigate / accept / transfer) with **concrete, actionable** steps tuned to project maturity and risk profile. Be opinionated; explain trade-offs briefly.
-3. Ask the user to choose or adjust the response.
-4. Update the threat file immediately: `status`, `response`, `mitigations`, `owner`, `notes`.
+2. Document **existing controls** — what is already in code, config, and architecture docs today (with evidence links). If none, say so explicitly.
+3. State your **recommended response** (avoid / mitigate / accept / transfer) and **recommended actions** — concrete steps not yet implemented. Be opinionated; explain trade-offs briefly.
+4. Ask the user to choose or adjust the response.
+5. Update the threat file immediately: `response`, `status`, **Recommended actions**, `owner`, `notes`. Do **not** upgrade `mitigation-state` based on the conversation alone.
 
-**Response types** (document exactly one primary response per threat):
+### Response decision vs implementation (critical)
+
+These are **different fields** — never conflate them:
+
+| Field | Meaning | Set when |
+|-------|---------|----------|
+| `response` | What the team **decided** to do | User confirms in walkthrough |
+| `mitigation-state` | What is **actually in place** today | After verifying code, config, and architecture |
+
+**Response types** (document exactly one primary `response` per threat):
 
 | Response | Meaning |
 |----------|---------|
 | **Avoid** | Eliminate the exposure (design change, remove feature, de-scope) |
-| **Mitigate** | Reduce likelihood or impact with controls |
+| **Mitigate** | Plan to reduce likelihood or impact with controls |
 | **Accept** | Acknowledged residual risk; document justification |
 | **Transfer** | Insurance, vendor SLA, shared responsibility with third party |
 
-Link mitigations to [MITRE D3FEND](https://d3fend.mitre.org/), [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/index.html), or Microsoft Threat Modeling categories when helpful — keep recommendations implementable, not hypothetical.
+Choosing `response: mitigate` means “we intend to fix this” — it does **not** mean the threat is mitigated.
 
-Classify mitigation state:
+### Sections in each threat file
 
-- **Non-mitigated** — no effective control; exploitable
-- **Partially mitigated** — limits impact or difficulty
-- **Fully mitigated** — control matches threat; residual risk accepted only if documented
+| Section | Content |
+|---------|---------|
+| **Existing controls** | Verified controls already in repo/docs — each row needs evidence |
+| **Recommended actions** | Agent/user-agreed steps **not yet** implemented |
+
+Link recommendations to [MITRE D3FEND](https://d3fend.mitre.org/), [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/index.html), or Microsoft Threat Modeling categories when helpful.
+
+### `mitigation-state` (evidence-only)
+
+Derive **only** from **Existing controls**, not from **Recommended actions** or user intent:
+
+| State | Criteria |
+|-------|----------|
+| **non-mitigated** | No effective control, or control does not address the threat |
+| **partially-mitigated** | Some control exists but the attack scenario remains realistic |
+| **fully-mitigated** | Control addresses the threat **and** is verified in code/config **and** reflected in `system-model.md` or other architecture docs |
+
+### Promotion gate (before `fully-mitigated`)
+
+Do not set `mitigation-state: fully-mitigated` or `status: closed` until **all** are true:
+
+1. **Code or config** — point to files, lines, manifests, or policies that implement the control
+2. **Architecture updated** — `system-model.md` (trust boundary, data flow, entry point, or component row) describes the control; add ADR if the change is non-obvious
+3. **Re-verified** — re-read the affected paths after the user claims work is done; do not trust verbal confirmation alone
+
+If the user agrees to mitigate but work is not merged yet: keep `mitigation-state: non-mitigated` (or `partially-mitigated` if a weak control exists), move items to **Recommended actions**, and set `status: response-decided`.
+
+Tickets alone are **not** sufficient for `fully-mitigated` — they justify `status: response-decided` with a ticket link in Recommended actions.
 
 If the user pauses, update `THREAT-MODEL.md` **Session** section (see format) with `last-reviewed`, `next-threat-id`, and open questions. On resume, read Session first and continue from `next-threat-id`.
 
@@ -164,8 +199,8 @@ During Phase 4, present one threat, get feedback, update the file, then proceed.
 
 Update `THREAT-MODEL.md`:
 
-- **Summary** — counts by severity and mitigation state (non / partial / full)
-- **Residual risk** — top unmitigated or accepted items for stakeholders
+- **Summary** — counts by severity and **implementation** (`mitigation-state`: non / partial / full), separate from count of `response: mitigate` still open
+- **Residual risk** — top **non-mitigated** or **accepted** items (use implementation state, not planned fixes)
 - **Session** — clear `next-threat-id` or mark `complete`
 - **Open questions** — architecture gaps blocking analysis
 
@@ -176,5 +211,7 @@ If `CONTEXT-MAP.md` exists, scope may be one context. Document which contexts ar
 ## What not to do
 
 - Do not store secrets, credentials, or live exploit payloads in threat-model files.
-- Do not mark threats **fully mitigated** without pointing to an existing control in code or config (or a tracked ticket the user confirms).
+- Do not set `mitigation-state: fully-mitigated` because the user chose **mitigate** or agreed with recommendations — only after code **and** architecture docs reflect the control.
+- Do not list planned work under **Existing controls**; planned work belongs only under **Recommended actions**.
+- Do not use `status: mitigated` — use `status: closed` only when the promotion gate passes (or `response: accept` with documented residual risk).
 - Do not skip severity ordering during walkthrough unless the user explicitly reprioritizes.

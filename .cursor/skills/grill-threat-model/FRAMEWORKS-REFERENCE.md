@@ -81,10 +81,16 @@ Auditing and Logging · Authentication · Authorization · Communication Securit
 
 ## Reporting categories
 
+**Implementation** (`mitigation-state`) — verified in code and architecture only:
+
 | State | Meaning |
 |-------|---------|
-| Non-mitigated | No effective control |
-| Partially mitigated | Limited exploit or impact |
-| Fully mitigated | Control matches threat; document residual if any |
+| Non-mitigated | No effective control in repo today |
+| Partially mitigated | Some control exists; threat still realistic |
+| Fully mitigated | Control verified in code/config **and** documented in `system-model.md` |
 
-Aggregate counts in `THREAT-MODEL.md` Summary for stakeholder review against risk appetite and compliance.
+**Response decision** (`response`) — separate from implementation. A threat can be `response: mitigate` with `mitigation-state: non-mitigated` while work is outstanding.
+
+**Recommended actions** vs **Existing controls** — planned fixes never count toward Fully mitigated until promoted after the promotion gate (see SKILL.md).
+
+Aggregate **implementation** counts in `THREAT-MODEL.md` Summary for stakeholder review. Track **response open** separately for engineering backlog.

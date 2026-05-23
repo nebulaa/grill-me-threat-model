@@ -60,19 +60,25 @@ Create directories lazily: first write creates `threat-model/`, `threat-model/th
 
 Sorted by severity (critical first). Link every file in `threats/`.
 
-| ID | Title | Severity | STRIDE | Response | Mitigation |
-|----|-------|----------|--------|----------|------------|
-| [TM-001](./threats/TM-001-example.md) | Example title | High | Spoofing | Mitigate | Partial |
+| ID | Title | Severity | STRIDE | Response | Implementation |
+|----|-------|----------|--------|----------|----------------|
+| [TM-001](./threats/TM-001-example.md) | Example title | High | Spoofing | Mitigate (planned) | non-mitigated |
+
+**Response** = team decision (`avoid` / `mitigate` / `accept` / `transfer`). **Implementation** = `mitigation-state` from verified controls only — not from planned work.
 
 ## Summary (update after walkthrough or version bump)
 
-| Severity | Total | Non-mitigated | Partial | Full |
-|----------|-------|---------------|---------|------|
-| Critical | 0 | 0 | 0 | 0 |
-| High | 0 | 0 | 0 | 0 |
-| Medium | 0 | 0 | 0 | 0 |
-| Low | 0 | 0 | 0 | 0 |
-| Informational | 0 | 0 | 0 | 0 |
+Counts by **implementation** (`mitigation-state`), not by planned `response`.
+
+| Severity | Total | Non-mitigated | Partial | Full | Response open |
+|----------|-------|---------------|---------|------|---------------|
+| Critical | 0 | 0 | 0 | 0 | 0 |
+| High | 0 | 0 | 0 | 0 | 0 |
+| Medium | 0 | 0 | 0 | 0 | 0 |
+| Low | 0 | 0 | 0 | 0 | 0 |
+| Informational | 0 | 0 | 0 | 0 | 0 |
+
+**Response open** — `response` is `mitigate` or `avoid` but `mitigation-state` is not `fully-mitigated` (work still in Recommended actions).
 
 ### Residual risk (stakeholder view)
 
